@@ -6,13 +6,13 @@ In Phase 1 I'm going to focus on building the image and container for the sample
 - Use Git to clone the sample application from Docker to my local machine
 
 ~~~	
-**git clone https://github.com/spring-projects/spring-petclinic.git**
+git clone https://github.com/spring-projects/spring-petclinic.git
 ~~~
 
 - Since I'm using a sample application from Docker, I'm going to use the 'docker init' command to streamline the default configuration.
 
 ~~~	
-**docker init**
+docker init
 ~~~
 
 - I answered the utility like this:
@@ -37,7 +37,7 @@ WARNING: The following Docker files already exist in this directory:
 - Inside the 'spring-petclinic' directory that I cloned I use the 'docker compose up --build' command to build the image, container, detach the container, and start services
 
 ~~~	
-**docker compose up --build -d**
+docker compose up --build -d
 ~~~
 
 - Due to the port configuration from earlier the app can be viewed in a browser at: **'http://localhost:8080'**
@@ -86,7 +86,7 @@ volumes:
 - Modify the **Line 92 in the Dockerfile** to pass in a postgres system property as noted in the included **'petclinic_db_setup_postgres.txt'** file.
 
 ~~~	
-**'ENTRYPOINT [ "java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.launch.JarLauncher" ]'**
+'ENTRYPOINT [ "java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.launch.JarLauncher" ]'
 ~~~
 
 - Save and close the files, now run the 'docker compose up --build -d' command
@@ -220,7 +220,7 @@ Setup a GitHub Repo to build and push a Docker image to Docker Hub.
 - In your local repository on your machine, run the following command to change the origin to the repository you just created. Make sure you change your-username to your GitHub username and your-repository to the name of the repository you created.
 
 ~~~
-**'git remote set-url origin https://github.com/your-username/your-repository.git'**
+'git remote set-url origin https://github.com/your-username/your-repository.git'
 ~~~
 
 - Run the following commands to stage, commit, and push your local repository to GitHub.
@@ -338,20 +338,20 @@ This code will define the pod with the container and the NodePort service which 
 In a terminal, navigate to spring-petclinic and deploy your application to Kubernetes.
 
 ~~~
-**kubectl apply -f docker-java-kubernetes.yaml**
+kubectl apply -f docker-java-kubernetes.yaml
 ~~~
 
 The output should look like this:
 
 ~~~
-**deployment.apps/docker-java-demo created**
-**service/service-entrypoint created**
+deployment.apps/docker-java-demo created
+service/service-entrypoint created
 ~~~
 
 Make sure everything worked by listing your deployments.
 
 ~~~
-**kubectl get deployments**
+kubectl get deployments
 ~~~
 
 The deployment should be listed as: **docker-java-demo**
@@ -359,7 +359,7 @@ The deployment should be listed as: **docker-java-demo**
 This indicates all one of the pods you asked for in your YAML are up and running. Do the same check for your services.
 
 ~~~
-**kubectl get services**
+kubectl get services
 ~~~
 
 You should get output like the following.
@@ -383,11 +383,11 @@ In a terminal, curl the service.
 You should get output like the following.
 
 ~~~
-**{"status":"UP","groups":["liveness","readiness"]}**
+{"status":"UP","groups":["liveness","readiness"]}
 ~~~
 
 Run the following command to tear down your application.
 
 ~~~
-**kubectl delete -f docker-java-kubernetes.yaml**
+kubectl delete -f docker-java-kubernetes.yaml
 ~~~
