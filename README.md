@@ -335,7 +335,7 @@ This code will define the pod with the container and the NodePort service which 
 
 - **Deploy and check the application**
 
-In a terminal, navigate to spring-petclinic and deploy your application to Kubernetes.
+In a terminal, navigate to spring-petclinic and deploy the application to Kubernetes.
 
 ~~~
 kubectl apply -f docker-java-kubernetes.yaml
@@ -348,7 +348,7 @@ deployment.apps/docker-java-demo created
 service/service-entrypoint created
 ~~~
 
-Make sure everything worked by listing your deployments.
+Make sure everything worked by listing the deployments.
 
 ~~~
 kubectl get deployments
@@ -356,13 +356,13 @@ kubectl get deployments
 
 The deployment should be listed as: **docker-java-demo**
 
-This indicates all one of the pods you asked for in your YAML are up and running. Do the same check for your services.
+This indicates all of the pods you asked for in your YAML are up and running. Do the same check for your services.
 
 ~~~
 kubectl get services
 ~~~
 
-You should get output like the following.
+I should get output like the following.
 
 ~~~
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
@@ -380,13 +380,13 @@ In a terminal, curl the service.
   --header 'content-type: application/json'
 ~~~
 
-You should get output like the following.
+I should get output like this.
 
 ~~~
 {"status":"UP","groups":["liveness","readiness"]}
 ~~~
 
-Run the following command to tear down your application.
+Run the following command to tear down the application.
 
 ~~~
 kubectl delete -f docker-java-kubernetes.yaml
