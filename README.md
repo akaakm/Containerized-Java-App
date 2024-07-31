@@ -1,21 +1,23 @@
-# Containerized-Java-App
-Simple Java App containerized in Docker with simple debugging and CI/CD workflow
-
 **PHASE 1: BUILD THE CONTAINER FOR THE APP**
 In Phase 1 I'm going to focus on building the image and container for the sample app to get started
 
 - Install Docker Desktop or other necessary files for the OS
 
 - Use Git to clone the sample application from Docker to my local machine
-	
+
+~~~	
 **git clone https://github.com/spring-projects/spring-petclinic.git**
+~~~
 
 - Since I'm using a sample application from Docker, I'm going to use the 'docker init' command to streamline the default configuration.
-	
+
+~~~	
 **docker init**
+~~~
 
 - I answered the utility like this:
 
+~~~
 WARNING: The following Docker files already exist in this directory:
   - docker-compose.yml
 ? Do you want to overwrite them? Yes
@@ -30,11 +32,13 @@ WARNING: The following Docker files already exist in this directory:
 	The sample app used version 17 so I used the same version to avoid any issues.
 
 ? What port does your server listen on? 8080
-
+~~~
 
 - Inside the 'spring-petclinic' directory that I cloned I use the 'docker compose up --build' command to build the image, container, detach the container, and start services
-	
+
+~~~	
 **docker compose up --build -d**
+~~~
 
 - Due to the port configuration from earlier the app can be viewed in a browser at: **'http://localhost:8080'**
 
@@ -46,6 +50,7 @@ In Phase 2 I'm going to add three improvements: add a database for persistent da
 
 - Modify the **'docker-compose.yaml'** file like so to include a depends on attribute for database creation, health check for the database, and environment variables to establish the name/user/pass.
 
+~~~yaml
 services:
   server:
     build:
@@ -75,12 +80,14 @@ services:
       retries: 5
 volumes:
   db-data:
-
+~~~
 
 
 - Modify the **Line 92 in the Dockerfile** to pass in a postgres system property as noted in the included **'petclinic_db_setup_postgres.txt'** file.
-	
+
+~~~	
 **'ENTRYPOINT [ "java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.launch.JarLauncher" ]'**
+~~~
 
 - Save and close the files, now run the 'docker compose up --build -d' command
 - Navigate around and it should operate normally, the volume can be viewed with 'docker volume ls' as well.
@@ -89,6 +96,7 @@ volumes:
 
 Add this under **Line 55 in the Dockerfile**:
 
+~~~
 FROM extract as development
 WORKDIR /build
 RUN cp -r /build/target/extracted/dependencies/. ./
@@ -97,9 +105,11 @@ RUN cp -r /build/target/extracted/snapshot-dependencies/. ./
 RUN cp -r /build/target/extracted/application/. ./
 ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
 CMD [ "java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.launch.JarLauncher" ]
+~~~
 
 -The **'docker-compose.yaml'** file needs to be updated to include the new development stage configuration. 
 
+~~~yaml
 services:
   server:
     build:
@@ -131,14 +141,16 @@ services:
       retries: 5
 volumes:
   db-data:
+~~~
 
 - Using the IntelliJ IDEA I'll setup a debugger named **'RemoteDebug'** that's included with the IDE.
 - Now open **'src/main/java/org/springframework/samples/petclinic/vet/VetController.java'** and set a breakpoint with **ctrl+shift+alt+F8** on the line **'showResourcesVetList'** function.
 
-The breakpoint will trigger when using the curl command on our container, this is a simple example of debugging code. The debugger has much more functionality that is worth exploring.
+(The breakpoint will trigger when using the curl command on the container, this is a simple example of debugging code. The debugger has much more functionality that is worth exploring.)
 
 - Compose Watch will be setup to automatically update any Docker Compose services as code is changed. The 'docker-compose.yaml' is changed with the following lines:
 
+~~~yaml
 services:
   server:
     build:
@@ -174,21 +186,22 @@ services:
       retries: 5
 volumes:
   db-data:
-
+~~~
 
 **PHASE 3: TESTING THE APPLICATION BUILD**
 This phase will integrate a unit test into the application while Docker is creating the image.
 
 - First, added a new base stage. In the base stage, I added common instructions that both the test and deps stage will need.
 
-Next, I added a new test stage labeled test based on the base stage. In this stage I copied in the necessary source files and then specified RUN to run './mvnw' test. Instead of using CMD, I used RUN to run the tests. The reason is that the CMD instruction runs when the container runs, and the RUN instruction runs when the image is being built. When using RUN, the build will fail if the tests fail.
+- Next, I added a new test stage labeled test based on the base stage. In this stage I copied in the necessary source files and then specified RUN to run './mvnw' test. Instead of using CMD, I used RUN to run the tests. The reason is that the CMD instruction runs when the container runs, and the RUN instruction runs when the image is being built. When using RUN, the build will fail if the tests fail.
 
-Finally, I updated the deps stage to be based on the base stage and removed the instructions that are now in the base stage.
+- Finally, I updated the deps stage to be based on the base stage and removed the instructions that are now in the base stage.
 
-Run the following command to build a new image using the test stage as the target and view the test results. Include --progress=plain to view the build output, --no-cache to ensure the tests always run, and --target-test to target the test stage.
+- Run the following command to build a new image using the test stage as the target and view the test results. Include --progress=plain to view the build output, --no-cache to ensure the tests always run, and --target-test to target the test stage.
 
+~~~
 'docker build -t java-docker-image-test --progress=plain --no-cache --target=test .'
-
+~~~
 
 **PHASE 4: CONFIGURE CI/CD FOR THE JAVA APPLICATION**
 Setup a GitHub Repo to build and push a Docker image to Docker Hub.
@@ -206,14 +219,17 @@ Setup a GitHub Repo to build and push a Docker image to Docker Hub.
 
 - In your local repository on your machine, run the following command to change the origin to the repository you just created. Make sure you change your-username to your GitHub username and your-repository to the name of the repository you created.
 
+~~~
 **'git remote set-url origin https://github.com/your-username/your-repository.git'**
+~~~
 
 - Run the following commands to stage, commit, and push your local repository to GitHub.
 
+~~~
 git add -A
 git commit -m "my commit"
 git push -u origin main
-
+~~~
 
 **Set up a Git workflow**
 - Select New workflow.
@@ -224,6 +240,7 @@ git push -u origin main
 
 - In the editor window, copy and paste the following YAML configuration.
 
+~~~yaml
 name: ci
 
 on:
@@ -258,17 +275,18 @@ jobs:
           push: true
           target: final
           tags: ${{ vars.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
+~~~
 
 **Run the workflow**
-Select Commit changes... and push the changes to the main branch.
+- Select Commit changes... and push the changes to the main branch.
 
-After pushing the commit, the workflow starts automatically.
+- After pushing the commit, the workflow starts automatically.
 
-Go to the Actions tab. It displays the workflow.
+- Go to the Actions tab. It displays the workflow.
 
-Selecting the workflow shows you the breakdown of all the steps.
+- Selecting the workflow shows you the breakdown of all the steps.
 
-When the workflow is complete, go to your repositories on Docker Hub.
+- When the workflow is complete, go to your repositories on Docker Hub.
 If you see the new repository in that list, it means the GitHub Actions successfully pushed the image to Docker Hub.
 
 
@@ -277,6 +295,7 @@ Docker Desktop will be used to deploy the sample application to a fully-featured
 
 - Create a new YAML file to configure Kubernetes with the following code:
 
+~~~yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -310,48 +329,65 @@ spec:
   - port: 8080
     targetPort: 8080
     nodePort: 30001
+~~~
 
 This code will define the pod with the container and the NodePort service which routes traffic from port 30001 to port 8080 so the app can communicate
 
-- Deploy and check the application
+- **Deploy and check the application**
 
 In a terminal, navigate to spring-petclinic and deploy your application to Kubernetes.
 
+~~~
 **kubectl apply -f docker-java-kubernetes.yaml**
+~~~
 
 The output should look like this:
 
+~~~
 **deployment.apps/docker-java-demo created**
 **service/service-entrypoint created**
+~~~
 
 Make sure everything worked by listing your deployments.
 
+~~~
 **kubectl get deployments**
+~~~
 
 The deployment should be listed as: **docker-java-demo**
 
 This indicates all one of the pods you asked for in your YAML are up and running. Do the same check for your services.
 
+~~~
 **kubectl get services**
+~~~
 
 You should get output like the following.
 
+~~~
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 kubernetes           ClusterIP   10.96.0.1       <none>        443/TCP          23h
 service-entrypoint   NodePort    10.99.128.230   <none>        8080:30001/TCP   75s
+~~~
 
 In addition to the default kubernetes service, see the service-entrypoint service, accepting traffic on port 30001/TCP.
 
 In a terminal, curl the service.
 
+~~~
  curl --request GET \
   --url http://localhost:30001/actuator/health \
   --header 'content-type: application/json'
+~~~
 
 You should get output like the following.
 
+~~~
 **{"status":"UP","groups":["liveness","readiness"]}**
+~~~
 
 Run the following command to tear down your application.
 
+~~~
 **kubectl delete -f docker-java-kubernetes.yaml**
+~~~
