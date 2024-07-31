@@ -107,7 +107,7 @@ ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,addr
 CMD [ "java", "-Dspring.profiles.active=postgres", "org.springframework.boot.loader.launch.JarLauncher" ]
 ~~~
 
--The **'docker-compose.yaml'** file needs to be updated to include the new development stage configuration. 
+- The **'docker-compose.yaml'** file needs to be updated to include the new development stage configuration. 
 
 ~~~yaml
 services:
